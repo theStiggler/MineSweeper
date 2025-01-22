@@ -38,7 +38,7 @@ func setup_board():
 				mine_locations.append([x,y])
 				is_mined = true
 
-	print_debug(self.grid)
+	#print_debug(self.grid)
 	print("Mines laid: ")
 	Grid2D.print_grid(grid)
 	
@@ -50,26 +50,22 @@ func setup_board():
 		for y in range(self.h):
 			
 			# if tile is a mine don't evaluate neighbours  
-			if grid[x][y] == -1:
-				break
-			for position in neighbours:
-				var x_pos = x + position.x
-				var y_pos = y + position.y
-				if x_pos < 0 or x_pos >= self.w or y_pos < 0 or y_pos >= self.h:
-					break
-				else:
-					pass
+			if not grid[x][y] == -1:
+				
+				var n_mined_neighbours := 0
+				for pos in neighbours:
+					var x_pos = x + pos.x
+					var y_pos = y + pos.y
+					if not (x_pos < 0 or x_pos >= self.w or y_pos < 0 or y_pos >= self.h):
+						if grid[x_pos][y_pos] == -1:
+							n_mined_neighbours += 1
+					
+				grid[x][y] = n_mined_neighbours
 			
 			
-	
-	#print("Proximities assigned: ")
-	
-	
-	
-	
-	
-	
-
+	#print_debug(self.grid)
+	print("Proximities assigned: ")
+	Grid2D.print_grid(grid)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
