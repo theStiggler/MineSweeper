@@ -1,8 +1,13 @@
+## basic grid 
+##
+## description here 
+##
+
 class_name Grid2D 
 
-# creates and returns a 2d array of dimensions len_x by len_y
-# fills each grid location with default_val 
-static func create_new(len_x : int, len_y : int, default_val = 0) -> Array :
+## creates and returns a 2d array of dimensions len_x by len_y [br]
+## fills each grid location with default_val 
+static func create_new(len_x : int, len_y : int, default_val = 0) -> Array : ## returns a new 2d array
 	var grid = []
 	for x in range(len_x):
 		grid.append([])
