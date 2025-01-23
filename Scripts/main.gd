@@ -50,17 +50,22 @@ func setup_board():
 		for y in range(self.h):
 			
 			# if tile is a mine don't evaluate neighbours  
-			if not grid[x][y] == -1:
+			if grid[x][y] == -1:
+				continue # skip iteration
 				
-				var n_mined_neighbours := 0
-				for pos in neighbours:
-					var x_pos = x + pos.x
-					var y_pos = y + pos.y
-					if not (x_pos < 0 or x_pos >= self.w or y_pos < 0 or y_pos >= self.h):
-						if grid[x_pos][y_pos] == -1:
-							n_mined_neighbours += 1
-					
-				grid[x][y] = n_mined_neighbours
+			var n_mined_neighbours := 0
+			for pos in neighbours:
+				var x_pos = x + pos.x
+				var y_pos = y + pos.y
+				
+				# if neighbour outside of grid skip 
+				if x_pos < 0 or x_pos >= self.w or y_pos < 0 or y_pos >= self.h:
+					continue
+				
+				elif grid[x_pos][y_pos] == -1:
+					n_mined_neighbours += 1
+				
+			grid[x][y] = n_mined_neighbours
 			
 			
 	#print_debug(self.grid)
