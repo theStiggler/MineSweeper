@@ -12,6 +12,9 @@ var n : int
 var grid : Array 
 # coordinates of mines 
 var mine_locations : Array
+@export var tile_scene : PackedScene 
+@export var mine_tile_texture : Texture2D
+@export var number_tile_png : Array
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -20,9 +23,11 @@ func _ready():
 	self.h = Settings.grid_height
 	self.n = Settings.n_mines
 	
-	setup_board()
+	setup_board_data()
+	setup_board_ui()
 
-func setup_board():
+func setup_board_data():
+	
 	self.grid = Grid2D.create_new(w, h)
 	self.mine_locations = []
 	
@@ -74,6 +79,27 @@ func setup_board():
 	print("Proximities assigned: ")
 	Grid2D.print_grid(grid)
 
+func setup_board_ui():
+	
+	
+	for x in range(w):
+		for y in range(h):
+			var tile : Tile = tile_scene.instantiate()
+			tile.position = Vector2(x, y) * tile.get_sprite_dim()
+			add_child(tile)
+			# may need to reparent tiles on instantiation to a board node for easy positioning e.g.:
+			#tile.reparent(some_parent_node)
+			var tile_value = grid[x][y]
+			if tile_value == 0:
+				continue
+			elif tile_value == -1:
+				tile.set_revealed_texture(mine_tile_texture)
+				#print_debug("TODO: assign bomb tiles with mine sprite")
+				pass
+			else: # tile is not empty or bomb
+				tile.set_revealed_texture(number_tile_png[tile_value-1])
+			
+	
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	pass
