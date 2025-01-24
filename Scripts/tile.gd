@@ -13,13 +13,16 @@ func set_revealed_texture(texture : Texture2D) -> void:
 func get_sprite_dim() -> float:
 	var spr : Sprite2D = $SprUnknownTile
 	return spr.get_rect().size.x
-	
+
+## reveals tile if not already revealed 
+func reveal():
+	if sprite_unknown.visible:
+		sprite_unknown.visible = false
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	sprite_revealed.texture = default_revealed_texture
 	
-
-
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	pass

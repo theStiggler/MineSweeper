@@ -8,8 +8,13 @@ var w : int
 var h : int
 var n : int 
 
-# 2d array representing game board
-var grid_data : Array 
+# game data and ui are coordinated by being stored in two analogous 2d arrays 
+# i.e. same dimensions, data[x][y] should be represented at ui[x][y]
+# 2d array representing game board data
+var grid_data : Array
+# 2d array representing game board ui nodes 
+var grid_ui : Array 
+
 # coordinates of mines 
 var mine_locations : Array
 var tile_size : float # set by setup_board_ui, don't try to access before running 
@@ -34,8 +39,6 @@ func world_to_board_pos(world_pos : Vector2, tile_size : float) -> Vector2i:
 	var scaled_diff : Vector2 = diff / tile_size
 	
 	return Vector2i(floori(scaled_diff.x), floori(scaled_diff.y))
-
-
 
 func setup_board_data():
 	
@@ -92,6 +95,7 @@ func setup_board_data():
 
 func setup_board_ui():
 	
+	grid_ui = Grid2D.create_new(w, h, null)
 	
 	for x in range(w):
 		for y in range(h):
@@ -100,6 +104,7 @@ func setup_board_ui():
 			tile_size = tile.get_sprite_dim()
 			tile.position = Vector2(x, y) * tile.get_sprite_dim()
 			add_child(tile)
+			grid_ui[x][y] = tile
 			# may need to reparent tiles on instantiation to a board node for easy positioning e.g.:
 			#tile.reparent(some_parent_node)
 			var tile_value = grid_data[x][y]
@@ -112,7 +117,8 @@ func setup_board_ui():
 			else: # tile is not empty or bomb
 				tile.set_revealed_texture(number_tile_png[tile_value-1])
 			
-	
+			
+
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	pass
@@ -131,4 +137,14 @@ func _input(event: InputEvent) -> void:
 		# check if the click was within the board 
 		if board_pos.x >= 0 and board_pos.x < w and board_pos.y >= 0 and board_pos.y < h:
 			print ("Click was within the board")
+			var tile_ui : Tile = grid_ui[board_pos.x][board_pos.y]
+			var tile_data : int = grid_data[board_pos.x][board_pos.y]
+			tile_ui.reveal()
+			if tile_data == -1:
+				print("BOOM, you lose!")
+				#lose_game()
+				return 
+			
+			
+			
 			pass
