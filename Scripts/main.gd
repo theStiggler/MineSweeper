@@ -3,24 +3,28 @@
 extends Node2D
 
 const MINE_ID : int = -1 ## numerical ID representing mines in data grid
+# list of positional vectors for 8 neighbouring grid squares
+const NEIGHBOURS = [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN,
+	Vector2i.UP + Vector2i.RIGHT, Vector2i.DOWN + Vector2i.RIGHT, Vector2i.LEFT + Vector2i.DOWN, Vector2i.LEFT + Vector2i.UP]
+
+@export var tile_scene : PackedScene 
+@export var mine_tile_texture : Texture2D
+@export var mine_explosion_texture : Texture2D
+@export var number_tile_png : Array
 
 var w : int 
 var h : int
-var n : int 
-
+var n : int
 # game data and ui are coordinated by being stored in two analogous 2d arrays 
 # i.e. same dimensions, data[x][y] should be represented at ui[x][y]
 # 2d array representing game board data
 var grid_data : Array
 # 2d array representing game board ui nodes 
 var grid_ui : Array 
-
 # coordinates of mines 
 var mine_locations : Array
 var tile_size : float # set by setup_board_ui, don't try to access before running 
-@export var tile_scene : PackedScene 
-@export var mine_tile_texture : Texture2D
-@export var number_tile_png : Array
+
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -63,19 +67,16 @@ func setup_board_data():
 	print("Mines laid: ")
 	Grid2D.print_grid(grid_data)
 	
-	# list of positional vectors for all 8 neighbouring grid_data squares
-	var neighbours = [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN, Vector2i.UP + Vector2i.RIGHT, Vector2i.DOWN + Vector2i.RIGHT, Vector2i.LEFT + Vector2i.DOWN, Vector2i.LEFT + Vector2i.UP]
-	
 	# assign mine proximity scores to all non-mined locations
 	for x in range(self.w):
 		for y in range(self.h):
 			
-			# if tile is a mine don't evaluate neighbours  
+			# if tile is a mine don't evaluate for proximity  
 			if grid_data[x][y] == MINE_ID:
 				continue # skip iteration
 				
 			var n_mined_neighbours := 0
-			for pos in neighbours:
+			for pos : Vector2i in NEIGHBOURS:
 				var x_pos = x + pos.x
 				var y_pos = y + pos.y
 				
@@ -126,6 +127,8 @@ func _process(delta):
 
 
 func _input(event: InputEvent) -> void:
+	
+	# process mouse left click 
 	if event is InputEventMouseButton and event.is_pressed() and event.button_index == MouseButton.MOUSE_BUTTON_LEFT:
 		
 		var board_pos : Vector2i = world_to_board_pos(event.position, tile_size)
@@ -141,10 +144,9 @@ func _input(event: InputEvent) -> void:
 			var tile_data : int = grid_data[board_pos.x][board_pos.y]
 			tile_ui.reveal()
 			if tile_data == -1:
+				tile_ui.set_revealed_texture(mine_explosion_texture)
 				print("BOOM, you lose!")
 				#lose_game()
 				return 
-			
-			
-			
+				
 			pass
