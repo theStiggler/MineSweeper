@@ -12,6 +12,7 @@ var n : int
 var grid : Array 
 # coordinates of mines 
 var mine_locations : Array
+var tile_size : float # set by setup_board_ui, don't try to access before running 
 @export var tile_scene : PackedScene 
 @export var mine_tile_texture : Texture2D
 @export var number_tile_png : Array
@@ -25,6 +26,16 @@ func _ready():
 	
 	setup_board_data()
 	setup_board_ui()
+
+func world_to_board_pos(world_pos : Vector2, tile_size : float) -> Vector2i:
+	var origin : Vector2 = position
+	
+	var diff : Vector2 = world_pos - origin
+	var scaled_diff : Vector2 = diff / tile_size
+	
+	return Vector2i(floori(scaled_diff.x), floori(scaled_diff.y))
+
+
 
 func setup_board_data():
 	
@@ -85,6 +96,8 @@ func setup_board_ui():
 	for x in range(w):
 		for y in range(h):
 			var tile : Tile = tile_scene.instantiate()
+			# store tile size in member variable for easy access from other funcs
+			tile_size = tile.get_sprite_dim()
 			tile.position = Vector2(x, y) * tile.get_sprite_dim()
 			add_child(tile)
 			# may need to reparent tiles on instantiation to a board node for easy positioning e.g.:
@@ -108,5 +121,6 @@ func _process(delta):
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.is_pressed():
-		print_debug("click at %s" % [event.position])
+		print("click at:\nWorld pos: %s" % [event.position])
+		print("Board pos: %s" % [world_to_board_pos(event.position, tile_size)])
 		
