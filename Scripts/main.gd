@@ -5,7 +5,7 @@ extends Node2D
 const MINE_ID : int = -1 ## numerical ID representing mines in data grid
 # list of positional vectors for 8 neighbouring grid squares
 const NEIGHBOURS = [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN,
-	Vector2i.UP + Vector2i.RIGHT, Vector2i.DOWN + Vector2i.RIGHT, Vector2i.LEFT + Vector2i.DOWN, Vector2i.LEFT + Vector2i.UP]
+Vector2i.UP + Vector2i.RIGHT, Vector2i.DOWN + Vector2i.RIGHT, Vector2i.LEFT + Vector2i.DOWN, Vector2i.LEFT + Vector2i.UP]
 
 @export var tile_scene : PackedScene 
 @export var mine_tile_texture : Texture2D
@@ -40,7 +40,7 @@ func world_to_board_pos(world_pos : Vector2, tile_size : float) -> Vector2i:
 	var origin : Vector2 = position
 	
 	var diff : Vector2 = world_pos - origin
-	var scaled_diff : Vector2 = diff / tile_size
+	var scaled_diff : Vector2 = diff / (tile_size * scale.x)
 	
 	return Vector2i(floori(scaled_diff.x), floori(scaled_diff.y))
 
@@ -76,15 +76,9 @@ func setup_board_data():
 				continue # skip iteration
 				
 			var n_mined_neighbours := 0
-			for pos : Vector2i in NEIGHBOURS:
-				var x_pos = x + pos.x
-				var y_pos = y + pos.y
+			for pos : Vector2i in get_neighbours_from(Vector2i(x, y)):
 				
-				# if neighbour outside of grid then skip 
-				if x_pos < 0 or x_pos >= self.w or y_pos < 0 or y_pos >= self.h:
-					continue
-				
-				elif grid_data[x_pos][y_pos] == MINE_ID:
+				if grid_data[pos.x][pos.y] == MINE_ID:
 					n_mined_neighbours += 1
 				
 			grid_data[x][y] = n_mined_neighbours
@@ -93,6 +87,23 @@ func setup_board_data():
 	#print_debug(self.grid_data)
 	print("Proximities assigned: ")
 	Grid2D.print_grid(grid_data)
+
+## returns all neighbouring positions within the bound of the board
+## from a given board position
+func get_neighbours_from(board_pos : Vector2i) -> Array:
+	var neighbouring_cells : Array = []
+	for pos : Vector2i in NEIGHBOURS:
+		var x_pos = board_pos.x + pos.x
+		var y_pos = board_pos.y + pos.y
+		
+		# if neighbour outside of grid then skip 
+		if x_pos < 0 or x_pos >= self.w or y_pos < 0 or y_pos >= self.h:
+			continue
+		
+		else:
+			neighbouring_cells.append(Vector2i(x_pos, y_pos))
+		
+	return neighbouring_cells
 
 func setup_board_ui():
 	
@@ -124,6 +135,26 @@ func setup_board_ui():
 func _process(delta):
 	pass
 
+## flood reveals all tiles from a tile with no mines in proximity 
+func reveal_tiles_from_zero(board_positions : Array, already_seen : Array ):
+	var positions_to_check : Array = []
+	for board_pos in board_positions:
+		already_seen.append(board_pos)
+		var tile_ui : Tile = grid_ui[board_pos.x][board_pos.y]
+		var tile_data : int = grid_data[board_pos.x][board_pos.y]
+		tile_ui.reveal()
+		for neighbour_pos in get_neighbours_from(board_pos):
+			if grid_data[neighbour_pos.x][neighbour_pos.y] == 0 and neighbour_pos not in already_seen:
+				positions_to_check.append(neighbour_pos)
+				already_seen.append(neighbour_pos)
+			else:
+				grid_ui[neighbour_pos.x][neighbour_pos.y].reveal()
+	if positions_to_check.size() > 0:
+		reveal_tiles_from_zero(positions_to_check, already_seen)
+	else:
+		return
+
+
 
 
 func _input(event: InputEvent) -> void:
@@ -140,13 +171,18 @@ func _input(event: InputEvent) -> void:
 		# check if the click was within the board 
 		if board_pos.x >= 0 and board_pos.x < w and board_pos.y >= 0 and board_pos.y < h:
 			print ("Click was within the board")
-			var tile_ui : Tile = grid_ui[board_pos.x][board_pos.y]
+			
 			var tile_data : int = grid_data[board_pos.x][board_pos.y]
-			tile_ui.reveal()
+			
 			if tile_data == -1:
+				var tile_ui : Tile = grid_ui[board_pos.x][board_pos.y]
 				tile_ui.set_revealed_texture(mine_explosion_texture)
+				tile_ui.reveal()
 				print("BOOM, you lose!")
 				#lose_game()
-				return 
-				
+				return
+			elif tile_data == 0:
+				reveal_tiles_from_zero([board_pos], []) 
+			else:
+				grid_ui[board_pos.x][board_pos.y].reveal()
 			pass

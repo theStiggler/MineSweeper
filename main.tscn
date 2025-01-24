@@ -15,6 +15,7 @@
 
 [node name="Node2D" type="Node2D"]
 position = Vector2(300, 200)
+scale = Vector2(2, 2)
 script = ExtResource("1_51w7l")
 tile_scene = ExtResource("10_bppcg")
 mine_tile_texture = ExtResource("3_2d3cs")
