@@ -9,7 +9,7 @@ var h : int
 var n : int 
 
 # 2d array representing game board
-var grid : Array 
+var grid_data : Array 
 # coordinates of mines 
 var mine_locations : Array
 var tile_size : float # set by setup_board_ui, don't try to access before running 
@@ -39,7 +39,7 @@ func world_to_board_pos(world_pos : Vector2, tile_size : float) -> Vector2i:
 
 func setup_board_data():
 	
-	self.grid = Grid2D.create_new(w, h)
+	self.grid_data = Grid2D.create_new(w, h)
 	self.mine_locations = []
 	
 	# placing mines until we have requested n
@@ -52,15 +52,15 @@ func setup_board_data():
 			x = randi_range(0, self.w - 1)
 			y = randi_range(0, self.h - 1)
 			if not mine_locations.has([x,y]):
-				self.grid[x][y] = MINE_ID
+				self.grid_data[x][y] = MINE_ID
 				mine_locations.append([x,y])
 				is_mined = true
 
-	#print_debug(self.grid)
+	#print_debug(self.grid_data)
 	print("Mines laid: ")
-	Grid2D.print_grid(grid)
+	Grid2D.print_grid(grid_data)
 	
-	# list of positional vectors for all 8 neighbouring grid squares
+	# list of positional vectors for all 8 neighbouring grid_data squares
 	var neighbours = [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN, Vector2i.UP + Vector2i.RIGHT, Vector2i.DOWN + Vector2i.RIGHT, Vector2i.LEFT + Vector2i.DOWN, Vector2i.LEFT + Vector2i.UP]
 	
 	# assign mine proximity scores to all non-mined locations
@@ -68,7 +68,7 @@ func setup_board_data():
 		for y in range(self.h):
 			
 			# if tile is a mine don't evaluate neighbours  
-			if grid[x][y] == MINE_ID:
+			if grid_data[x][y] == MINE_ID:
 				continue # skip iteration
 				
 			var n_mined_neighbours := 0
@@ -80,15 +80,15 @@ func setup_board_data():
 				if x_pos < 0 or x_pos >= self.w or y_pos < 0 or y_pos >= self.h:
 					continue
 				
-				elif grid[x_pos][y_pos] == MINE_ID:
+				elif grid_data[x_pos][y_pos] == MINE_ID:
 					n_mined_neighbours += 1
 				
-			grid[x][y] = n_mined_neighbours
+			grid_data[x][y] = n_mined_neighbours
 			
 			
-	#print_debug(self.grid)
+	#print_debug(self.grid_data)
 	print("Proximities assigned: ")
-	Grid2D.print_grid(grid)
+	Grid2D.print_grid(grid_data)
 
 func setup_board_ui():
 	
@@ -102,7 +102,7 @@ func setup_board_ui():
 			add_child(tile)
 			# may need to reparent tiles on instantiation to a board node for easy positioning e.g.:
 			#tile.reparent(some_parent_node)
-			var tile_value = grid[x][y]
+			var tile_value = grid_data[x][y]
 			if tile_value == 0:
 				continue
 			elif tile_value == -1:
@@ -120,11 +120,14 @@ func _process(delta):
 
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.is_pressed():
+	if event is InputEventMouseButton and event.is_pressed() and event.button_index == MouseButton.MOUSE_BUTTON_LEFT:
+		
 		var board_pos : Vector2i = world_to_board_pos(event.position, tile_size)
+		
 		print("click at:\nWorld pos: %s" % [event.position])
 		print_debug("Board pos: %s" % [board_pos])
 		print("\n")
+		
 		# check if the click was within the board 
 		if board_pos.x >= 0 and board_pos.x < w and board_pos.y >= 0 and board_pos.y < h:
 			print ("Click was within the board")
