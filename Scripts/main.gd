@@ -103,3 +103,10 @@ func setup_board_ui():
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	pass
+
+
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.is_pressed():
+		print_debug("click at %s" % [event.position])
+		
