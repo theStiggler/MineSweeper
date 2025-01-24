@@ -121,6 +121,11 @@ func _process(delta):
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.is_pressed():
+		var board_pos : Vector2i = world_to_board_pos(event.position, tile_size)
 		print("click at:\nWorld pos: %s" % [event.position])
-		print("Board pos: %s" % [world_to_board_pos(event.position, tile_size)])
-		
+		print_debug("Board pos: %s" % [board_pos])
+		print("\n")
+		# check if the click was within the board 
+		if board_pos.x >= 0 and board_pos.x < w and board_pos.y >= 0 and board_pos.y < h:
+			print ("Click was within the board")
+			pass
