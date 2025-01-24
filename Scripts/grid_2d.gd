@@ -23,8 +23,3 @@ static func print_grid(grid : Array, padding : int = 3 ):
 		for x in range(grid.size()):
 			row += "%*s" % [padding, grid[x][y]]
 		print(row)
-
-
-
-
-
