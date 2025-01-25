@@ -1,5 +1,3 @@
-# CURRENT: sort out proximity allocations 
-
 extends Node2D
 
 const MINE_ID : int = -1 ## numerical ID representing mines in data grid
@@ -10,6 +8,7 @@ Vector2i.UP + Vector2i.RIGHT, Vector2i.DOWN + Vector2i.RIGHT, Vector2i.LEFT + Ve
 @export var tile_scene : PackedScene 
 @export var mine_tile_texture : Texture2D
 @export var mine_explosion_texture : Texture2D
+@export var tile_flag_texture : Texture2D
 @export var number_tile_png : Array
 
 var w : int 
@@ -146,7 +145,6 @@ func reveal_tiles_from_zero(board_positions : Array, already_seen : Array ):
 		for neighbour_pos in get_neighbours_from(board_pos):
 			if grid_data[neighbour_pos.x][neighbour_pos.y] == 0 and neighbour_pos not in already_seen:
 				positions_to_check.append(neighbour_pos)
-				already_seen.append(neighbour_pos)
 			else:
 				grid_ui[neighbour_pos.x][neighbour_pos.y].reveal()
 	if positions_to_check.size() > 0:
@@ -154,35 +152,41 @@ func reveal_tiles_from_zero(board_positions : Array, already_seen : Array ):
 	else:
 		return
 
-
-
-
 func _input(event: InputEvent) -> void:
 	
 	# process mouse left click 
-	if event is InputEventMouseButton and event.is_pressed() and event.button_index == MouseButton.MOUSE_BUTTON_LEFT:
-		
+	if event is InputEventMouseButton and event.is_pressed():
 		var board_pos : Vector2i = world_to_board_pos(event.position, tile_size)
-		
-		print("click at:\nWorld pos: %s" % [event.position])
-		print_debug("Board pos: %s" % [board_pos])
-		print("\n")
-		
-		# check if the click was within the board 
-		if board_pos.x >= 0 and board_pos.x < w and board_pos.y >= 0 and board_pos.y < h:
-			print ("Click was within the board")
+		var on_board = board_pos.x >= 0 and board_pos.x < w and board_pos.y >= 0 and board_pos.y < h
+		if event.button_index == MouseButton.MOUSE_BUTTON_LEFT:
+			print("click at:\nWorld pos: %s" % [event.position])
+			print_debug("Board pos: %s" % [board_pos])
+			print("\n")
 			
-			var tile_data : int = grid_data[board_pos.x][board_pos.y]
-			
-			if tile_data == -1:
+			if on_board:
+				print ("Click was within the board")
+				
+				var tile_data : int = grid_data[board_pos.x][board_pos.y]
 				var tile_ui : Tile = grid_ui[board_pos.x][board_pos.y]
-				tile_ui.set_revealed_texture(mine_explosion_texture)
-				tile_ui.reveal()
-				print("BOOM, you lose!")
-				#lose_game()
-				return
-			elif tile_data == 0:
-				reveal_tiles_from_zero([board_pos], []) 
-			else:
-				grid_ui[board_pos.x][board_pos.y].reveal()
+				
+				if tile_ui.flagged:
+					return
+				
+				if tile_data == -1:
+					
+					tile_ui.set_revealed_texture(mine_explosion_texture)
+					tile_ui.reveal()
+					print("BOOM, you lose!")
+					#lose_game()
+					return
+				elif tile_data == 0:
+					reveal_tiles_from_zero([board_pos], []) 
+				else:
+					grid_ui[board_pos.x][board_pos.y].reveal()
+		
+		elif event.button_index == MOUSE_BUTTON_RIGHT:
+			
+			if on_board:
+				var tile_ui : Tile = grid_ui[board_pos.x][board_pos.y]
+				tile_ui.toggle_flag(tile_flag_texture)
 			pass

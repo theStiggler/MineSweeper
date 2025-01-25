@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://5eci38n6puy5"]
+[gd_scene load_steps=14 format=3 uid="uid://5eci38n6puy5"]
 
 [ext_resource type="Script" path="res://Scripts/main.gd" id="1_51w7l"]
 [ext_resource type="Texture2D" uid="uid://b80rg2onuduun" path="res://Gfx/Tile1.png" id="2_ilyqe"]
@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://dccmfwyr6e6r4" path="res://Gfx/Tile3.png" id="4_ea7dn"]
 [ext_resource type="Texture2D" uid="uid://cekpaa5otj203" path="res://Gfx/TileExploded.png" id="4_hhxvx"]
 [ext_resource type="Texture2D" uid="uid://duf6025uqcbjy" path="res://Gfx/Tile4.png" id="5_aue5x"]
+[ext_resource type="Texture2D" uid="uid://c6qfkubkwopo" path="res://Gfx/TileFlag.png" id="5_vlilq"]
 [ext_resource type="Texture2D" uid="uid://cir1q01b6wnj2" path="res://Gfx/Tile5.png" id="6_dmk6r"]
 [ext_resource type="Texture2D" uid="uid://7hiyghpn2tsr" path="res://Gfx/Tile6.png" id="7_76w87"]
 [ext_resource type="Texture2D" uid="uid://cj838u3pfohx5" path="res://Gfx/Tile7.png" id="8_7ryqj"]
@@ -20,4 +21,5 @@ script = ExtResource("1_51w7l")
 tile_scene = ExtResource("10_bppcg")
 mine_tile_texture = ExtResource("3_2d3cs")
 mine_explosion_texture = ExtResource("4_hhxvx")
+tile_flag_texture = ExtResource("5_vlilq")
 number_tile_png = [ExtResource("2_ilyqe"), ExtResource("3_6h86k"), ExtResource("4_ea7dn"), ExtResource("5_aue5x"), ExtResource("6_dmk6r"), ExtResource("7_76w87"), ExtResource("8_7ryqj"), ExtResource("9_2ihaj")]

@@ -8,7 +8,7 @@
 script = ExtResource("1_o63no")
 default_revealed_texture = ExtResource("2_yr8oj")
 
-[node name="SprReveleadTile" type="Sprite2D" parent="."]
+[node name="SprRevealedTile" type="Sprite2D" parent="."]
 centered = false
 
 [node name="SprUnknownTile" type="Sprite2D" parent="."]
