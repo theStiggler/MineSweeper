@@ -23,6 +23,9 @@ var grid_ui : Array
 # coordinates of mines 
 var mine_locations : Array
 var tile_size : float # set by setup_board_ui, don't try to access before running 
+# victory and loss flags 
+var game_won : bool
+var game_over : bool 
 
 
 # Called when the node enters the scene tree for the first time.
@@ -34,6 +37,10 @@ func _ready():
 	
 	setup_board_data()
 	setup_board_ui()
+
+	game_won = false 
+	game_over = false
+	
 
 func world_to_board_pos(world_pos : Vector2, tile_size : float) -> Vector2i:
 	var origin : Vector2 = position
@@ -127,8 +134,6 @@ func setup_board_ui():
 				pass
 			else: # tile is not empty or bomb
 				tile.set_revealed_texture(number_tile_png[tile_value-1])
-			
-			
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
@@ -154,10 +159,12 @@ func reveal_tiles_from_zero(board_positions : Array, already_seen : Array ):
 
 func _input(event: InputEvent) -> void:
 	
-	# process mouse left click 
+	# process mouse button inputs 
 	if event is InputEventMouseButton and event.is_pressed():
+		# convert event location to board space 
 		var board_pos : Vector2i = world_to_board_pos(event.position, tile_size)
 		var on_board = board_pos.x >= 0 and board_pos.x < w and board_pos.y >= 0 and board_pos.y < h
+		
 		if event.button_index == MouseButton.MOUSE_BUTTON_LEFT:
 			print("click at:\nWorld pos: %s" % [event.position])
 			print_debug("Board pos: %s" % [board_pos])
